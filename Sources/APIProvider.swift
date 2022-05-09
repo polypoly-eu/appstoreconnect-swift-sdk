@@ -9,29 +9,6 @@ import Foundation
 
 public typealias RequestCompletionHandler<T> = (Result<T, Swift.Error>) -> Void
 
-/// The configuration needed to set up the API Provider including all needed information for performing API requests.
-public struct APIConfiguration {
-
-    /// Your private key ID from App Store Connect (Ex: 2X9R4HXF34)
-    let privateKeyID: String
-
-    let privateKey: String
-
-    /// Your issuer ID from the API Keys page in App Store Connect (Ex: 57246542-96fe-1a63-e053-0824d011072a)
-    let issuerID: String
-
-    /// Creates a new API configuration to use for initialising the API Provider.
-    ///
-    /// - Parameters:
-    ///   - privateKeyID: Your private key ID from App Store Connect (Ex: 2X9R4HXF34)
-    ///   - issuerID: Your issuer ID from the API Keys page in App Store Connect (Ex: 57246542-96fe-1a63-e053-0824d011072a)
-    public init(issuerID: String, privateKeyID: String, privateKey: String) {
-        self.privateKeyID = privateKeyID
-        self.privateKey = privateKey
-        self.issuerID = issuerID
-    }
-}
-
 /// Provides access to all API Methods. Can be used to perform API requests.
 public final class APIProvider {
 
@@ -102,11 +79,8 @@ public final class APIProvider {
         return decoder
     }()
 
-    /// The configuration needed to set up the API Provider including all needed information for performing API requests.
-    private let configuration: APIConfiguration
-
     /// The authenticator to handle all JWT signing related actions.
-    private lazy var requestsAuthenticator = JWTRequestsAuthenticator(apiConfiguration: self.configuration)
+    private let requestsAuthenticator: JWTRequestsAuthenticator
 
     /// Handles URLRequest execution
     private let requestExecutor: RequestExecutor
@@ -116,8 +90,8 @@ public final class APIProvider {
     /// - Parameters:
     ///   - configuration: The configuration needed to set up the API Provider including all needed information for performing API requests.
     ///   - requestExecutor: An instance conforming to the RequestExecutor protocol for executing URLRequest
-    public init(configuration: APIConfiguration, requestExecutor: RequestExecutor = DefaultRequestExecutor()) {
-        self.configuration = configuration
+    public init(token: String, requestExecutor: RequestExecutor = DefaultRequestExecutor()) {
+        self.requestsAuthenticator = JWTRequestsAuthenticator(token: token)
         self.requestExecutor = requestExecutor
     }
 
